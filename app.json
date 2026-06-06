@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "DocScanner AI",
+    "slug": "docscanner-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "experiments": {
+      "reactCompiler": true
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ai.docscanner",
+      "infoPlist": {
+        "NSCameraUsageDescription": "DocScanner AI requires real-time camera access for high-definition document scanning and edge recognition.",
+        "NSFaceIDUsageDescription": "DocScanner AI uses FaceID to lock and secure your biometric document vault."
+      }
+    },
+    "android": {
+      "package": "com.ai.docscanner",
+      "permissions": [
+        "CAMERA",
+        "USE_BIOMETRIC"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Give DocScanner AI permission to use the camera to scan paperwork."
+        }
+      ],
+      "expo-secure-store",
+      "expo-local-authentication"
+    ]
+  }
+}
