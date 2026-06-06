@@ -11,7 +11,7 @@ export default function EntryScreen() {
   const [processingState, setProcessingState] = useState<boolean>(false);
 
   // SECURE CONFIGURATION NOTE: Insert production token string destination safely here
-  const OPENAI_SECRET_KEY = "PASTE_YOUR_OPENAI_API_KEY_HERE";
+  const OPENAI_SECRET_KEY = "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";
 
   const handleCaptureSequenceComplete = async (uris: { dark: string; neutral: string; bright: string }) => {
     setProcessingState(true);
