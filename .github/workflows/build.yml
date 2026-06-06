@@ -1,0 +1,99 @@
+name: Build DocScanner AI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli eas-cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prebuild Android
+        run: npx expo prebuild --platform android --clean
+
+      - name: Build Android APK
+        working-directory: android
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          draft: true
+          files: android/app/build/outputs/apk/release/app-release.apk
+
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli eas-cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prebuild iOS
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install
+
+      - name: Build iOS (no codesign)
+        run: |
+          xcodebuild -workspace ios/docscannerai.xcworkspace \
+            -scheme docscannerai \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath /tmp/DocScannerAI.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            archive 2>&1 | tail -20
+
+      - name: Create IPA
+        run: |
+          cd /tmp/DocScannerAI.xcarchive/Products/Applications
+          mkdir -p Payload
+          cp -R *.app Payload/ 2>/dev/null || true
+          zip -r /tmp/DocScannerAI.ipa Payload/
+
+      - name: Upload IPA to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          draft: true
+          files: /tmp/DocScannerAI.ipa
