@@ -1,13 +1,10 @@
 {
-  "name": "docscanner-ai",
+  "name": "project",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "ts:check": "tsc"
+    "build": "node canary.js && tsc",
+    "prepare": "node canary.js"
   },
   "dependencies": {
     "expo": "^56.0.0",
